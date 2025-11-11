@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TPG Ultimate (Definitive Build)</title>
+    <style>
+/* TPG Ultimate - style.css (Definitive Build) */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+:root {
+    --color-dark-primary: #121212;
+    --color-dark-secondary: #232323;
+    --color-glass-bg: rgba(44, 44, 44, 0.6);
+    --color-glass-border: rgba(255, 255, 255, 0.15);
+    --color-text-primary: #f0f0f0;
+    --color-text-secondary: #b3b3b3;
+    --color-accent: #3a7eff;
+    --color-accent-glow: rgba(58, 126, 255, 0.7);
+    --color-gold: #ffd700;
+    --color-purple: #9370db;
+    --color-red: #ff4d4d;
+    --color-rainbow: linear-gradient(45deg, red, orange, yellow, green, blue, indigo, violet);
+    --sidebar-width: 250px;
+    --border-radius: 12px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-image: linear-gradient(135deg, var(--color-dark-secondary), var(--color-dark-primary));
+    color: var(--color-text-primary);
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+    transition: background-image 0.5s ease-in-out;
+}
+
+.app-container { display: flex; height: 100vh; width: 100%; }
+#sidebar { width: var(--sidebar-width); height: 100%; background: rgba(0, 0, 0, 0.2); display: flex; flex-direction: column; padding: 20px; border-right: 1px solid var(--color-glass-border); flex-shrink: 0; }
+#main-content { flex-grow: 1; height: 100%; overflow-y: auto; padding: 30px; position: relative; }
+
+/* --- Sidebar --- */
+.game-title { text-align: center; font-size: 2.5rem; margin-bottom: 20px; text-shadow: 0 0 10px var(--color-accent-glow); }
+#main-nav { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+.nav-button { width: 100%; padding: 12px; background: transparent; border: 1px solid var(--color-glass-border); border-radius: var(--border-radius); color: var(--color-text-secondary); font-size: 1rem; font-weight: 600; text-align: left; cursor: pointer; transition: all 0.3s ease; }
+.nav-button:hover { background: var(--color-accent); color: var(--color-text-primary); border-color: var(--color-accent); }
+.nav-button.active { background: var(--color-accent); color: var(--color-text-primary); box-shadow: 0 0 15px var(--color-accent-glow); border-color: var(--color-accent); }
+.sidebar-footer { margin-top: auto; text-align: center; color: var(--color-text-secondary); font-size: 0.8rem; }
+
+/* --- General Page & UI Component Styles --- */
+.page { width: 100%; animation: fadeIn 0.5s ease-in-out; }
+.page.hidden { display: none; }
+.page-header { margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; }
+.page-header h2 { font-size: 2rem; color: var(--color-text-primary); }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+.glass-container { background: var(--color-glass-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid var(--color-glass-border); border-radius: var(--border-radius); padding: 25px; margin-bottom: 20px; }
+input, select { width: 100%; padding: 12px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--color-glass-border); border-radius: 8px; color: var(--color-text-primary); font-size: 1rem; }
+button { padding: 12px 20px; background: var(--color-accent); border: none; border-radius: 8px; color: var(--color-text-primary); font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
+button:hover:not(:disabled) { box-shadow: 0 0 15px var(--color-accent-glow); filter: brightness(1.2); }
+button:disabled { background: #555; cursor: not-allowed; opacity: 0.6; }
+
+#register-form { display: flex; gap: 10px; }
+#register-form input { margin-bottom: 0; }
+#start-game-prompt-button { width: 100%; }
+
+/* --- 3D DICE STYLES --- */
+#dice-container { display: flex; justify-content: center; gap: 40px; margin: 50px 0; perspective: 1000px; height: 80px; }
+.dice-cube { width: 80px; height: 80px; position: relative; transform-style: preserve-3d; }
+.dice-cube.rolling { animation: dice-roll 1.5s ease-out; }
+.dice-cube .face { position: absolute; width: 80px; height: 80px; background: #f0f0f0; border: 2px solid #333; display: flex; justify-content: center; align-items: center; font-size: 2.5rem; font-weight: bold; color: #333; }
+.face.front  { transform: rotateY(  0deg) translateZ(40px); } .face.back   { transform: rotateY(180deg) translateZ(40px); }
+.face.right  { transform: rotateY( 90deg) translateZ(40px); } .face.left   { transform: rotateY(-90deg) translateZ(40px); }
+.face.top    { transform: rotateX( 90deg) translateZ(40px); } .face.bottom { transform: rotateX(-90deg) translateZ(40px); }
+@keyframes dice-roll { 100% { transform: rotateX(1440deg) rotateY(1080deg) rotateZ(720deg); } }
+
+/* --- Roll Page Elements --- */
+#roll-button { display: block; margin: 0 auto; width: 200px; padding: 15px; font-size: 1.2rem; }
+#turn-summary { text-align: center; font-size: 1.5rem; font-weight: bold; margin-top: 20px; height: 30px; transition: opacity 0.5s; opacity: 0; }
+#roll-results-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; margin-top: 30px; }
+
+/* --- REVEAL ANIMATIONS & CARD STYLES --- */
+.pokemon-card { background: linear-gradient(145deg, #444, #333); border: 2px solid var(--color-glass-border); border-radius: var(--border-radius); padding: 15px; text-align: center; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); position: relative; overflow: hidden; transform: scale(0); animation: pop-in 0.5s ease forwards; }
+@keyframes pop-in { to { transform: scale(1); } }
+.pokemon-card img { width: 96px; height: 96px; image-rendering: pixelated; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4)); transition: transform 0.3s ease; }
+.pokemon-card:hover img { transform: scale(1.1); }
+.pokemon-card-name { font-weight: 600; margin-top: 10px; }
+.pokemon-card-tags { min-height: 20px; margin-top: 5px; display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; }
+.tag { background-color: var(--color-accent); font-size: 0.7rem; padding: 2px 8px; border-radius: 10px; font-weight: 600; }
+
+.reveal-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: inherit; z-index: 2; pointer-events: none; }
+.pokemon-card.rarity-shiny .reveal-overlay { animation: shiny-reveal 1.5s forwards; }
+.pokemon-card.rarity-secret .reveal-overlay { animation: secret-reveal 1s forwards; }
+.pokemon-card.rarity-rainbow .reveal-overlay { animation: rainbow-reveal 1.5s forwards; }
+.pokemon-card.type-gmax { animation: gmax-reveal 4s ease-in-out infinite 1.5s; }
+.pokemon-card.type-legendary { animation: legendary-reveal 5s ease-in-out infinite 1.5s; }
+@keyframes shiny-reveal { 0% { box-shadow: inset 0 0 40px 20px rgba(255,215,0,0); } 50% { box-shadow: inset 0 0 40px 20px rgba(255,215,0,0.8); } 100% { box-shadow: inset 0 0 40px 20px rgba(255,215,0,0); } }
+@keyframes secret-reveal { from { background: radial-gradient(circle at center, rgba(147, 112, 219, 0.5) 0%, transparent 10%); transform: scale(0); } to { background: radial-gradient(circle at center, rgba(147, 112, 219, 0) 70%, transparent 100%); transform: scale(2.5); } }
+@keyframes rainbow-reveal { 0%,100% { box-shadow: 0 0 20px 5px red; } 20% { box-shadow: 0 0 20px 5px orange; } 40% { box-shadow: 0 0 20px 5px yellow; } 60% { box-shadow: 0 0 20px 5px green; } 80% { box-shadow: 0 0 20px 5px blue; } }
+@keyframes gmax-reveal { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+@keyframes legendary-reveal { 0%, 100% { filter: drop-shadow(0 0 3px white); } 50% { filter: drop-shadow(0 0 15px white); } }
+
+/* --- TROPHY CASE --- */
+#trophy-display-area { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 25px; }
+.trophy-card { padding: 10px; text-align: center; position: relative; overflow: hidden; border-radius: var(--border-radius); display: flex; flex-direction: column; align-items: center; justify-content: flex-start; width: 100%; aspect-ratio: 63 / 88; border: 2px solid rgba(255, 255, 255, 0.3); }
+.trophy-card img { width: 85%; height: auto; flex-grow: 1; object-fit: contain; margin-bottom: 5px; }
+.trophy-card .pokemon-card-name { font-weight: 600; width: 100%; padding: 5px; background-color: rgba(0, 0, 0, 0.2); }
+.trophy-card .trophy-rarity-label { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.5); padding: 3px 8px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; color: var(--color-text-primary); z-index: 1; }
+.trophy-card.rarity-shiny { background: radial-gradient(circle, #fde497, var(--color-gold)); color: #333; }
+.trophy-card.rarity-secret { background: radial-gradient(circle, #c4a9ff, var(--color-purple)); color: var(--color-text-primary); }
+.trophy-card.rarity-rainbow { background: var(--color-rainbow); animation: rainbow-bg 4s linear infinite; background-size: 200% 200%; color: #333; }
+@keyframes rainbow-bg { to { background-position: 200%; } }
+
+/* --- EVENT & ODDS UI STYLES --- */
+#event-indicator { padding: 10px; text-align: center; }
+#odds-display { position: fixed; bottom: 10px; right: 10px; z-index: 50; padding: 10px 15px; border-radius: var(--border-radius); background: var(--color-glass-bg); backdrop-filter: blur(10px); border: 1px solid var(--color-glass-border); text-align: right; font-size: 0.9rem; transition: opacity 0.5s; }
+#odds-display .event-title { font-weight: bold; }
+#event-notification-banner { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); padding: 15px 30px; border-radius: var(--border-radius); color: var(--color-text-primary); font-size: 1.2rem; font-weight: bold; z-index: 1001; text-align: center; background: var(--color-glass-bg); backdrop-filter: blur(10px); border: 1px solid var(--color-glass-border); animation: slideDownFade 5s forwards; visibility: hidden; }
+#event-notification-banner.visible { visibility: visible; }
+.event-flavor-text { font-style: italic; font-size: 1rem; display: block; }
+@keyframes slideDownFade { 0% { top: -120px; opacity: 0; } 10% { top: 20px; opacity: 1; } 90% { top: 20px; opacity: 1; } 100% { top: -120px; opacity: 0; } }
+body.event-eclipse { background-image: linear-gradient(135deg, #4c2a85, #1d1135); }
+body.event-rainbow { background-image: var(--color-rainbow); background-size: 400% 400%; animation: rainbow-bg 8s ease infinite; }
+body.event-flare { background-image: linear-gradient(135deg, #ff4500, #8b0000); }
+body.event-glacial { background-image: linear-gradient(135deg, #add8e6, #4682b4); }
+body.event-celestial { background-image: linear-gradient(135deg, #0f0c29, #302b63, #24243e); }
+
+/* --- DEV PANEL --- */
+#dev-panel.hidden { display: none; }
+.dev-panel-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+.dev-group h3 { margin-bottom: 15px; }
+.dev-group input, .dev-group select { margin-bottom: 10px; }
+.dev-group button { width: 100%; margin-bottom: 10px; }
+#wipe-data-btn { background-color: var(--color-red); }
+
+/* --- MISC & MODALS --- */
+.player-list-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid var(--color-glass-border); }
+.player-list-item:last-child { border-bottom: none; }
+.delete-player-btn { background: none; border: none; color: var(--color-red); font-size: 1.2rem; cursor: pointer; padding: 5px; }
+#scoreboard-table { width: 100%; border-collapse: collapse; }
+#scoreboard-table th, #scoreboard-table td { padding: 15px; text-align: left; border-bottom: 1px solid var(--color-glass-border); }
+.titles-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.titles-container ul { list-style: none; padding-left: 0; }
+.titles-container li { padding: 10px; margin-bottom: 8px; border: 1px solid var(--color-glass-border); border-radius: 8px; cursor: pointer; transition: all 0.2s ease; }
+.titles-container li.unlocked:hover { background-color: var(--color-accent); }
+.titles-container li.equipped { background-color: var(--color-gold); color: var(--color-dark-primary); border-color: var(--color-gold); }
+.titles-container li.locked { opacity: 0.5; cursor: not-allowed; }
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px); display: flex; justify-content: center; align-items: center; z-index: 1000; animation: fadeIn 0.3s; }
+.modal-overlay.hidden { display: none; }
+.modal-content { width: 90%; max-width: 500px; }
+#start-game-player-checklist { text-align: left; max-height: 200px; overflow-y: auto; margin-bottom: 20px; border: 1px solid var(--color-glass-border); padding: 10px; border-radius: 8px; }
+#start-game-player-checklist label { display: block; margin-bottom: 10px; cursor: pointer; }
+#start-game-player-checklist input { margin-right: 10px; }
+</style>
+</head>
+<body>
+    <!-- Main Application Container -->
+    <div class="app-container">
+
+        <!-- Sidebar Navigation -->
+        <aside id="sidebar">
+            <h1 class="game-title">TPG</h1>
+            <div id="event-indicator" class="glass-container">
+                <!-- Event status will be rendered here -->
+            </div>
+            <nav id="main-nav">
+                <button class="nav-button active" data-page="roll">Roll</button>
+                <button class="nav-button" data-page="trophy-case">Trophy Case</button>
+                <button class="nav-button" data-page="scoreboard">Scoreboard</button>
+                <button class="nav-button" data-page="titles">Titles</button>
+                <button class="nav-button" data-page="register">Register</button>
+                <button class="nav-button" data-page="dev">Dev</button>
+            </nav>
+            <div class="sidebar-footer">
+                <p>PC Ultimate Edition v1.0</p>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main id="main-content">
+            <!-- Roll Page -->
+            <section id="page-roll" class="page">
+                <div class="page-header"><h2 id="current-turn-display">Create players to begin...</h2></div>
+                <div id="dice-container">
+                    <div class="dice-cube" id="die-1"><div class="face front">1</div><div class="face back">6</div><div class="face right">3</div><div class="face left">4</div><div class="face top">2</div><div class="face bottom">5</div></div>
+                    <div class="dice-cube" id="die-2"><div class="face front">1</div><div class="face back">6</div><div class="face right">3</div><div class="face left">4</div><div class="face top">2</div><div class="face bottom">5</div></div>
+                    <div class="dice-cube" id="die-3"><div class="face front">1</div><div class="face back">6</div><div class="face right">3</div><div class="face left">4</div><div class="face top">2</div><div class="face bottom">5</div></div>
+                    <div class="dice-cube" id="die-4"><div class="face front">1</div><div class="face back">6</div><div class="face right">3</div><div class="face left">4</div><div class="face top">2</div><div class="face bottom">5</div></div>
+                    <div class="dice-cube" id="die-5"><div class="face front">1</div><div class="face back">6</div><div class="face right">3</div><div class="face left">4</div><div class="face top">2</div><div class="face bottom">5</div></div>
+                </div>
+                <button id="roll-button" disabled>Roll Dice</button>
+                <div id="turn-summary"></div>
+                <div id="roll-results-container"></div>
+            </section>
+
+            <!-- Trophy Case Page -->
+            <section id="page-trophy-case" class="page hidden">
+                <div class="page-header"><h2>Trophy Case</h2><select id="trophy-player-select"></select></div>
+                <div id="trophy-display-area" class="glass-container"></div>
+            </section>
+
+            <!-- Scoreboard Page -->
+            <section id="page-scoreboard" class="page hidden">
+                <div class="page-header"><h2>Scoreboard</h2></div>
+                <div id="scoreboard-container" class="glass-container">
+                    <table id="scoreboard-table">
+                        <thead>
+                            <tr>
+                                <th>Player</th>
+                                <th>Title</th>
+                                <th>Current Score</th>
+                                <th>Total Wins</th>
+                                <th>Trophies</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Player scores will be inserted here by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Titles Page -->
+            <section id="page-titles" class="page hidden">
+                <div class="page-header"><h2>Titles & Achievements</h2><select id="titles-player-select"></select></div>
+                <div class="titles-container">
+                    <div class="glass-container">
+                        <h3>Trophy Titles</h3>
+                        <ul id="trophy-titles-list">
+                            <!-- Trophy titles will be inserted here by JS -->
+                        </ul>
+                    </div>
+                    <div class="glass-container">
+                        <h3>Win Titles</h3>
+                        <ul id="win-titles-list">
+                            <!-- Win titles will be inserted here by JS -->
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Register Page -->
+            <section id="page-register" class="page hidden">
+                 <div class="page-header"><h2>Register Players</h2></div>
+                <div class="glass-container">
+                    <form id="register-form">
+                        <input type="text" id="player-name-input" placeholder="Enter new player name" required autocomplete="off">
+                        <button type="submit">Create Player</button>
+                    </form>
+                </div>
+                <div class="glass-container">
+                    <h3>Registered Players</h3>
+                    <div id="player-list">
+                        <!-- Player list will be inserted here by JS -->
+                    </div>
+                </div>
+                <div class="glass-container">
+                    <button id="start-game-prompt-button">Start New Game</button>
+                </div>
+            </section>
+
+            <!-- Developer Page -->
+            <section id="page-dev" class="page hidden">
+                 <!-- This entire section is hidden, JS will reveal the panel inside -->
+                <div id="dev-panel" class="hidden">
+                    <div class="page-header"><h2>Developer Panel</h2></div>
+                    <div class="dev-panel-grid">
+                        <div class="glass-container dev-group">
+                            <h3>Cosmic Events (Toggle)</h3>
+                            <button class="dev-button" data-event-key="ECLIPSE">Toggle Eclipse 🌑</button>
+                            <button class="dev-button" data-event-key="RAINBOW">Toggle Rainbow Burst 🌈</button>
+                            <button class="dev-button" data-event-key="FLARE">Toggle Flare Storm 🔥</button>
+                            <button class="dev-button" data-event-key="GLACIAL">Toggle Glacial Era 🧊</button>
+                            <button class="dev-button" data-event-key="CELESTIAL">Toggle Celestial Gateway 🌌</button>
+                        </div>
+                       
+<!-- PASTE THIS NEW BLOCK IN ITS PLACE -->
+<div class="glass-container dev-group">
+    <h3>Force Generation & Mutations</h3>
+    <input type="text" id="force-pokemon-input" placeholder="Pokémon Name (e.g., Pikachu)">
+    <div id="force-mutations-container">
+        <label><input type="checkbox" name="mutation" value="isLegendary"> Legendary</label>
+        <label><input type="checkbox" name="mutation" value="isGmax"> G-Max</label>
+    </div>
+    <div id="force-rarity-container">
+        <label><input type="radio" name="trophy-rarity" value="none" checked> None</label>
+        <label><input type="radio" name="trophy-rarity" value="shiny"> Shiny</label>
+        <label><input type="radio" name="trophy-rarity" value="secret"> Secret</label>
+        <label><input type="radio" name="trophy-rarity" value="rainbow"> Rainbow</label>
+    </div>
+    <button id="force-generate-btn">Force Generate Next Pokémon</button>
+</div>                        <div class="glass-container dev-group">
+                            <h3>Player Management</h3>
+                            <select id="dev-player-select"></select>
+                            <input type="number" id="dev-score-input" value="10">
+                            <button id="dev-add-score-btn">Add Score</button>
+                            <button id="dev-set-score-btn">Set Score</button>
+                        </div>
+                        <div class="glass-container dev-group">
+                            <h3>Danger Zone</h3>
+                             <button id="wipe-data-btn">Wipe All Save Data</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- UI Overlays -->
+    <div id="odds-display"></div>
+    <div id="event-notification-banner"></div>
+
+    <!-- Modals -->
+    <div id="dev-password-modal" class="modal-overlay hidden">
+        <div class="modal-content glass-container"><h3>Developer Access</h3><p>Enter the password to unlock the developer panel.</p><input type="password" id="dev-password-input" placeholder="Password"><button id="dev-password-submit">Submit</button><button id="dev-password-cancel">Cancel</button></div>
+    </div>
+    <div id="start-game-modal" class="modal-overlay hidden">
+        <div class="modal-content glass-container"><h3>Start New Game</h3><p>Select 2 or more players.</p><div id="start-game-player-checklist"></div><button id="confirm-start-game-button">Start Game</button><button id="cancel-start-game-button">Cancel</button></div>
+    </div>
+    <div id="victory-modal" class="modal-overlay hidden">
+         <div class="modal-content glass-container"><h2 id="victory-message">Player Wins!</h2><button id="victory-modal-close">Continue</button></div>
+    </div>
+
+    <!-- CRITICAL CHANGE: Load data first, then the main script -->
+    <script src="pokedata.js" defer></script> 
+    <script src="script.js" defer></script>
+<script>
+/* TPG Ultimate - pokedata.js (Definitive Build - CORRECTED Gen 1-8) */
+
+const POKEMON_DICTIONARY = [
+    "Bulbasaur", "Ivysaur", "Venusaur", "Charmander", "Charmeleon", "Charizard", "Squirtle", "Wartortle", "Blastoise", "Caterpie", "Metapod", "Butterfree", "Weedle", "Kakuna", "Beedrill", "Pidgey", "Pidgeotto", "Pidgeot", "Rattata", "Raticate", "Spearow", "Fearow", "Ekans", "Arbok", "Pikachu", "Raichu", "Sandshrew", "Sandslash", "Nidoran♀", "Nidorina", "Nidoqueen", "Nidoran♂", "Nidorino", "Nidoking", "Clefairy", "Clefable", "Vulpix", "Ninetales", "Jigglypuff", "Wigglytuff", "Zubat", "Golbat", "Oddish", "Gloom", "Vileplume", "Paras", "Parasect", "Venonat", "Venomoth", "Diglett", "Dugtrio", "Meowth", "Persian", "Psyduck", "Golduck", "Mankey", "Primeape", "Growlithe", "Arcanine", "Poliwag", "Poliwhirl", "Poliwrath", "Abra", "Kadabra", "Alakazam", "Machop", "Machoke", "Machamp", "Bellsprout", "Weepinbell", "Victreebel", "Tentacool", "Tentacruel", "Geodude", "Graveler", "Golem", "Ponyta", "Rapidash", "Slowpoke", "Slowbro", "Magnemite", "Magneton", "Farfetch'd", "Doduo", "Dodrio", "Seel", "Dewgong", "Grimer", "Muk", "Shellder", "Cloyster", "Gastly", "Haunter", "Gengar", "Onix", "Drowzee", "Hypno", "Krabby", "Kingler", "Voltorb", "Electrode", "Exeggcute", "Exeggutor", "Cubone", "Marowak", "Hitmonlee", "Hitmonchan", "Lickitung", "Koffing", "Weezing", "Rhyhorn", "Rhydon", "Chansey", "Tangela", "Kangaskhan", "Horsea", "Seadra", "Goldeen", "Seaking", "Staryu", "Starmie", "Mr. Mime", "Scyther", "Jynx", "Electabuzz", "Magmar", "Pinsir", "Tauros", "Magikarp", "Gyarados", "Lapras", "Ditto", "Eevee", "Vaporeon", "Jolteon", "Flareon", "Porygon", "Omanyte", "Omastar", "Kabuto", "Kabutops", "Aerodactyl", "Snorlax", "Articuno", "Zapdos", "Moltres", "Dratini", "Dragonair", "Dragonite", "Mewtwo", "Mew",
+    "Chikorita", "Bayleef", "Meganium", "Cyndaquil", "Quilava", "Typhlosion", "Totodile", "Croconaw", "Feraligatr", "Sentret", "Furret", "Hoothoot", "Noctowl", "Ledyba", "Ledian", "Spinarak", "Ariados", "Crobat", "Chinchou", "Lanturn", "Pichu", "Cleffa", "Igglybuff", "Togepi", "Togetic", "Natu", "Xatu", "Mareep", "Flaaffy", "Ampharos", "Bellossom", "Marill", "Azumarill", "Sudowoodo", "Politoed", "Hoppip", "Skiploom", "Jumpluff", "Aipom", "Sunkern", "Sunflora", "Yanma", "Wooper", "Quagsire", "Espeon", "Umbreon", "Murkrow", "Slowking", "Misdreavus", "Unown", "Wobbuffet", "Girafarig", "Pineco", "Forretress", "Dunsparce", "Gligar", "Steelix", "Snubbull", "Granbull", "Qwilfish", "Scizor", "Shuckle", "Heracross", "Sneasel", "Teddiursa", "Ursaring", "Slugma", "Magcargo", "Swinub", "Piloswine", "Corsola", "Remoraid", "Octillery", "Delibird", "Mantine", "Skarmory", "Houndour", "Houndoom", "Kingdra", "Phanpy", "Donphan", "Porygon2", "Stantler", "Smeargle", "Tyrogue", "Hitmontop", "Smoochum", "Elekid", "Magby", "Miltank", "Blissey", "Raikou", "Entei", "Suicune", "Larvitar", "Pupitar", "Tyranitar", "Lugia", "Ho-Oh", "Celebi",
+    "Treecko", "Grovyle", "Sceptile", "Torchic", "Combusken", "Blaziken", "Mudkip", "Marshtomp", "Swampert", "Poochyena", "Mightyena", "Zigzagoon", "Linoone", "Wurmple", "Silcoon", "Beautifly", "Cascoon", "Dustox", "Lotad", "Lombre", "Ludicolo", "Seedot", "Nuzleaf", "Shiftry", "Taillow", "Swellow", "Wingull", "Pelipper", "Ralts", "Kirlia", "Gardevoir", "Surskit", "Masquerain", "Shroomish", "Breloom", "Slakoth", "Vigoroth", "Slaking", "Nincada", "Ninjask", "Shedinja", "Whismur", "Loudred", "Exploud", "Makuhita", "Hariyama", "Azurill", "Nosepass", "Skitty", "Delcatty", "Sableye", "Mawile", "Aron", "Lairon", "Aggron", "Meditite", "Medicham", "Electrike", "Manectric", "Plusle", "Minun", "Volbeat", "Illumise", "Roselia", "Gulpin", "Svalot", "Carvanha", "Sharpedo", "Wailmer", "Wailord", "Numel", "Camerupt", "Torkoal", "Spoink", "Grumpig", "Spinda", "Trapinch", "Vibrava", "Flygon", "Cacnea", "Cacturne", "Swablu", "Altaria", "Zangoose", "Seviper", "Lunatone", "Solrock", "Barboach", "Whiscash", "Corphish", "Crawdaunt", "Baltoy", "Claydol", "Lileep", "Cradily", "Anorith", "Armaldo", "Feebas", "Milotic", "Castform", "Kecleon", "Shuppet", "Banette", "Duskull", "Dusclops", "Tropius", "Chimecho", "Absol", "Wynaut", "Snorunt", "Glalie", "Spheal", "Sealeo", "Walrein", "Clamperl", "Huntail", "Gorebyss", "Relicanth", "Luvdisc", "Bagon", "Shelgon", "Salamence", "Beldum", "Metang", "Metross", "Regirock", "Regice", "Registeel", "Latias", "Latios", "Kyogre", "Groudon", "Rayquaza", "Jirachi", "Deoxys",
+    "Turtwig", "Grotle", "Torterra", "Chimchar", "Monferno", "Infernape", "Piplup", "Prinplup", "Empoleon", "Starly", "Staravia", "Staraptor", "Bidoof", "Bibarel", "Kricketot", "Kricketune", "Shinx", "Luxio", "Luxray", "Budew", "Roserade", "Cranidos", "Rampardos", "Shieldon", "Bastiodon", "Burmy", "Wormadam", "Mothim", "Combee", "Vespiquen", "Pachirisu", "Buizel", "Floatzel", "Cherubi", "Cherrim", "Shellos", "Gastrodon", "Ambipom", "Drifloon", "Drifblim", "Buneary", "Lopunny", "Mismagius", "Honchkrow", "Glameow", "Purugly", "Chingling", "Stunky", "Skuntank", "Bronzor", "Bronzong", "Bonsly", "Mime Jr.", "Happiny", "Chatot", "Spiritomb", "Gible", "Gabite", "Garchomp", "Munchlax", "Riolu", "Lucario", "Hippopotas", "Hippowdon", "Skorupi", "Drapion", "Croagunk", "Toxicroak", "Carnivine", "Finneon", "Lumineon", "Mantyke", "Snover", "Abomasnow", "Weavile", "Magnezone", "Lickilicky", "Rhyperior", "Tangrowth", "Electivire", "Magmortar", "Togekiss", "Yanmega", "Leafeon", "Glaceon", "Gliscor", "Mamoswine", "Porygon-Z", "Gallade", "Probopass", "Dusknoir", "Froslass", "Rotom", "Uxie", "Mesprit", "Azelf", "Dialga", "Palkia", "Heatran", "Regigigas", "Giratina", "Cresselia", "Phione", "Manaphy", "Darkrai", "Shaymin", "Arceus",
+    "Victini", "Snivy", "Servine", "Serperior", "Tepig", "Pignite", "Emboar", "Oshawott", "Dewott", "Samurott", "Patrat", "Watchog", "Lillipup", "Herdier", "Stoutland", "Purrloin", "Liepard", "Pansage", "Simisage", "Pansear", "Simisear", "Panpour", "Simipour", "Munna", "Musharna", "Pidove", "Tranquill", "Unfezant", "Blitzle", "Zebstrika", "Roggenrola", "Boldore", "Gigalith", "Woobat", "Swoobat", "Drilbur", "Excadrill", "Audino", "Timburr", "Gurdurr", "Conkeldurr", "Tympole", "Palpitoad", "Seismitoad", "Throh", "Sawk", "Sewaddle", "Swadloon", "Leavanny", "Venipede", "Whirlipede", "Scolipede", "Cottonee", "Whimsicott", "Petilil", "Lilligant", "Basculin", "Sandile", "Krokorok", "Krookodile", "Darumaka", "Darmanitan", "Maractus", "Dwebble", "Crustle", "Scraggy", "Scrafty", "Sigilyph", "Yamask", "Cofagrigus", "Tirtouga", "Carracosta", "Archen", "Archeops", "Trubbish", "Garbodor", "Zorua", "Zoroark", "Minccino", "Cinccino", "Gothita", "Gothorita", "Gothitelle", "Solosis", "Duosion", "Reuniclus", "Ducklett", "Swanna", "Vanillite", "Vanillish", "Vanilluxe", "Deerling", "Sawsbuck", "Emolga", "Karrablast", "Escavalier", "Foongus", "Amoonguss", "Frillish", "Jellicent", "Alomomola", "Joltik", "Galvantula", "Ferroseed", "Ferrothorn", "Klink", "Klang", "Klinklang", "Tynamo", "Eelektrik", "Eelektross", "Elgyem", "Beheeyem", "Litwick", "Lampent", "Chandelure", "Axew", "Fraxure", "Haxorus", "Cubchoo", "Beartic", "Cryogonal", "Shelmet", "Accelgor", "Stunfisk", "Mienfoo", "Mienshao", "Druddigon", "Golett", "Golurk", "Pawniard", "Bisharp", "Bouffalant", "Rufflet", "Braviary", "Vullaby", "Mandibuzz", "Heatmor", "Durant", "Deino", "Zweilous", "Hydreigon", "Larvesta", "Volcarona", "Cobalion", "Terrakion", "Virizion", "Tornadus", "Thundurus", "Reshiram", "Zekrom", "Landorus", "Kyurem", "Keldeo", "Meloetta", "Genesect",
+    "Chespin", "Quilladin", "Chesnaught", "Fennekin", "Braixen", "Delphox", "Froakie", "Frogadier", "Greninja", "Bunnelby", "Diggersby", "Fletchling", "Fletchinder", "Talonflame", "Scatterbug", "Spewpa", "Vivillon", "Litleo", "Pyroar", "Flabébé", "Floette", "Florges", "Skiddo", "Gogoat", "Pancham", "Pangoro", "Furfrou", "Espurr", "Meowstic", "Honedge", "Doublade", "Aegislash", "Spritzee", "Aromatisse", "Swirlix", "Slurpuff", "Inkay", "Malamar", "Binacle", "Barbaracle", "Skrelp", "Dragalge", "Clauncher", "Clawitzer", "Helioptile", "Heliolisk", "Tyrunt", "Tyrantrum", "Amaura", "Aurorus", "Sylveon", "Hawlucha", "Dedenne", "Carbink", "Goomy", "Sliggoo", "Goodra", "Klefki", "Phantump", "Trevenant", "Pumpkaboo", "Gourgeist", "Bergmite", "Avalugg", "Noibat", "Noivern", "Xerneas", "Yveltal", "Zygarde", "Diancie", "Hoopa", "Volcanion",
+    "Rowlet", "Dartrix", "Decidueye", "Litten", "Torracat", "Incineroar", "Popplio", "Brionne", "Primarina", "Pikipek", "Trumbeak", "Toucannon", "Yungoos", "Gumshoos", "Grubbin", "Charjabug", "Vikavolt", "Crabrawler", "Crabominable", "Oricorio", "Cutiefly", "Ribombee", "Rockruff", "Lycanroc", "Wishiwashi", "Mareanie", "Toxapex", "Mudbray", "Mudsdale", "Dewpider", "Araquanid", "Fomantis", "Lurantis", "Morelull", "Shiinotic", "Salandit", "Salazzle", "Stufful", "Bewear", "Bounsweet", "Steenee", "Tsareena", "Comfey", "Oranguru", "Passimian", "Wimpod", "Golisopod", "Sandygast", "Palossand", "Pyukumuku", "Type: Null", "Silvally", "Minior", "Komala", "Turtonator", "Togedemaru", "Mimikyu", "Bruxish", "Drampa", "Dhelmise", "Jangmo-o", "Hakamo-o", "Kommo-o", "Tapu Koko", "Tapu Lele", "Tapu Bulu", "Tapu Fini", "Cosmog", "Cosmoem", "Solgaleo", "Lunala", "Nihilego", "Buzzwole", "Pheromosa", "Xurkitree", "Celesteela", "Kartana", "Guzzlord", "Necrozma", "Magearna", "Marshadow", "Poipole", "Naganadel", "Stakataka", "Blacephalon", "Zeraora", "Meltan", "Melmetal",
+    "Grookey", "Thwackey", "Rillaboom", "Scorbunny", "Raboot", "Cinderace", "Sobble", "Drizzile", "Inteleon", "Skwovet", "Greedent", "Rookidee", "Corvisquire", "Corviknight", "Blipbug", "Dottler", "Orbeetle", "Nickit", "Thievul", "Gossifleur", "Eldegoss", "Wooloo", "Dubwool", "Chewtle", "Drednaw", "Yamper", "Boltund", "Rolycoly", "Carkol", "Coalossal", "Applin", "Flapple", "Appletun", "Silicobra", "Sandaconda", "Cramorant", "Arrokuda", "Barraskewda", "Toxel", "Toxtricity", "Sizzlipede", "Centiskorch", "Clobbopus", "Grapploct", "Sinistea", "Polteageist", "Hatenna", "Hattrem", "Hatterene", "Impidimp", "Morgrem", "Grimmsnarl", "Obstagoon", "Perrserker", "Cursola", "Sirfetch'd", "Mr. Rime", "Runerigus", "Milcery", "Alcremie", "Falinks", "Pincurchin", "Snom", "Frosmoth", "Stonjourner", "Eiscue", "Indeedee", "Morpeko", "Cufant", "Copperajah", "Dracozolt", "Arctozolt", "Dracovish", "Arctovish", "Duraludon", "Dreepy", "Drakloak", "Dragapult", "Zacian", "Zamazenta", "Eternatus", "Kubfu", "Urshifu", "Zarude", "Regieleki", "Regidrago", "Glastrier", "Spectrier", "Calyrex"
+];
+
+const LEGENDARY_POKEMON = ["Articuno","Zapdos","Moltres","Mewtwo","Raikou","Entei","Suicune","Lugia","Ho-Oh","Regirock","Regice","Registeel","Latias","Latios","Kyogre","Groudon","Rayquaza","Uxie","Mesprit","Azelf","Dialga","Palkia","Heatran","Regigigas","Giratina","Cresselia","Cobalion","Terrakion","Virizion","Tornadus","Thundurus","Reshiram","Zekrom","Landorus","Kyurem","Xerneas","Yveltal","Zygarde","Silvally","Tapu Koko","Tapu Lele","Tapu Bulu","Tapu Fini","Cosmog","Cosmoem","Solgaleo","Lunala","Necrozma","Zacian","Zamazenta","Eternatus","Kubfu","Urshifu","Zarude","Regieleki","Regidrago","Glastrier","Spectrier","Calyrex", "Mew", "Celebi", "Jirachi", "Deoxys", "Phione", "Manaphy", "Darkrai", "Shaymin", "Arceus", "Victini", "Keldeo", "Meloetta", "Genesect", "Diancie", "Hoopa", "Volcanion", "Magearna", "Marshadow", "Zeraora", "Meltan", "Melmetal"];
+
+const GMAX_POKEMON = ["Venusaur","Charizard","Blastoise","Butterfree","Pikachu","Meowth","Machamp","Gengar","Kingler","Lapras","Eevee","Snorlax","Garbodor","Corviknight","Orbeetle","Drednaw","Coalossal","Flapple","Appletun","Sandaconda","Toxtricity","Centiskorch","Hatterene","Grimmsnarl","Alcremie","Copperajah","Duraludon","Rillaboom","Cinderace","Inteleon","Urshifu"];
+</script>
+<script>
+/* TPG Ultimate - script.js (Definitive Build - ALL BUGS FIXED) */
+
+'use strict';
+
+document.addEventListener('DOMContentLoaded', () => {
+
+    const EVENTS={NONE:{name:'Normal Conditions',rarity:'',flavorText:'',theme:'',duration:0,chance:0,boosts:{shiny:4096,legendary:.01,gmax:.02}},ECLIPSE:{name:'🌑 ECLIPSE MODE',rarity:'[Rare]',flavorText:'A deep cosmic silence spreads…',theme:'event-eclipse',duration:10,chance:50,boosts:{shiny:2048,legendary:.025,gmax:.02}},RAINBOW:{name:'🌈 RAINBOW BURST',rarity:'[Uncommon]',flavorText:'The air bursts with vibrant energy!',theme:'event-rainbow',duration:7,chance:75,boosts:{shiny:1365,legendary:.01,gmax:.02}},FLARE:{name:'🔥 FLARE STORM',rarity:'[Uncommon]',flavorText:'The sky crackles with heat.',theme:'event-flare',duration:8,chance:60,boosts:{shiny:4096,legendary:.01,gmax:.025}},GLACIAL:{name:'❄️ GLACIAL ERA',rarity:'[Rare]',flavorText:'A frozen stillness surrounds the land.',theme:'event-glacial',duration:9,chance:100,boosts:{shiny:2048,legendary:.01,gmax:.01}},CELESTIAL:{name:'🌌 CELESTIAL GATEWAY',rarity:'[LEGENDARY]',flavorText:'Reality bends... The stars align.',theme:'event-celestial',duration:6,chance:200,boosts:{shiny:1024,legendary:.02,gmax:.015}}};
+    const TROPHY_TITLES={1:"Trophy Novice",10:"Trophy Collector",25:"Trophy Hunter",50:"Trophy Expert",100:"Trophy Master",150:"Hoarder",200:"Shiny Sovereign",250:"Treasure Legend"};
+    const WIN_TITLES={1:"Rookie",5:"Contender",10:"Champion",25:"Veteran",50:"Elite",75:"Master",100:"Grandmaster",150:"Living Legend"};
+    function getGeneration(id){if(id<=151)return 1;if(id<=251)return 2;if(id<=386)return 3;if(id<=493)return 4;if(id<=649)return 5;if(id<=721)return 6;if(id<=809)return 7;if(id<=898)return 8;return 0}
+    const dom={body:document.body,pages:document.querySelectorAll('.page'),navButtons:document.querySelectorAll('.nav-button'),eventIndicator:document.getElementById('event-indicator'),currentTurnDisplay:document.getElementById('current-turn-display'),diceCubes:document.querySelectorAll('.dice-cube'),rollButton:document.getElementById('roll-button'),turnSummary:document.getElementById('turn-summary'),rollResultsContainer:document.getElementById('roll-results-container'),registerForm:document.getElementById('register-form'),playerNameInput:document.getElementById('player-name-input'),playerList:document.getElementById('player-list'),startGamePromptButton:document.getElementById('start-game-prompt-button'),trophyPlayerSelect:document.getElementById('trophy-player-select'),titlesPlayerSelect:document.getElementById('titles-player-select'),trophyDisplayArea:document.getElementById('trophy-display-area'),scoreboardContainer:document.getElementById('scoreboard-container'),scoreboardTableBody:document.querySelector('#scoreboard-table tbody'),trophyTitlesList:document.getElementById('trophy-titles-list'),winTitlesList:document.getElementById('win-titles-list'),oddsDisplay:document.getElementById('odds-display'),eventNotificationBanner:document.getElementById('event-notification-banner'),devPasswordModal:document.getElementById('dev-password-modal'),devPasswordInput:document.getElementById('dev-password-input'),devPasswordSubmit:document.getElementById('dev-password-submit'),devPasswordCancel:document.getElementById('dev-password-cancel'),startGameModal:document.getElementById('start-game-modal'),startGameChecklist:document.getElementById('start-game-player-checklist'),confirmStartGameButton:document.getElementById('confirm-start-game-button'),cancelStartGameButton:document.getElementById('cancel-start-game-button'),victoryModal:document.getElementById('victory-modal'),victoryMessage:document.getElementById('victory-message'),victoryModalClose:document.getElementById('victory-modal-close'),devPanel:document.getElementById('dev-panel'),devEventButtons:document.querySelectorAll('.dev-button[data-event-key]'),devPlayerSelect:document.getElementById('dev-player-select'),devScoreInput:document.getElementById('dev-score-input'),devAddScoreBtn:document.getElementById('dev-add-score-btn'),devSetScoreBtn:document.getElementById('dev-set-score-btn'),forcePokemonInput:document.getElementById('force-pokemon-input'),forceGenerateBtn:document.getElementById('force-generate-btn'),wipeDataBtn:document.getElementById('wipe-data-btn')};
+    let playerStats={},playerTrophies={};let currentEvent={key:'NONE',duration:0};let currentGame={players:[],scores:{},turnIndex:0,isGameActive:!1};let forcedGeneration={name:null,mutations:{}};let isProcessing=!1;
+
+    function init(){loadData();addEventListeners();updatePlayerListView();updateAllPlayerSelectors();navigateToPage('register');updateOddsUI();updateEventIndicator();console.log("TPG Ultimate Definitive Build Initialized.")}
+    function saveData(){try{localStorage.setItem('TPG_playerStats',JSON.stringify(playerStats));localStorage.setItem('TPG_playerTrophies',JSON.stringify(playerTrophies));localStorage.setItem('TPG_currentEvent',JSON.stringify(currentEvent))}catch(e){console.error("Failed to save data:",e)}}
+    function loadData(){try{playerStats=JSON.parse(localStorage.getItem('TPG_playerStats'))||{};playerTrophies=JSON.parse(localStorage.getItem('TPG_playerTrophies'))||{};currentEvent=JSON.parse(localStorage.getItem('TPG_currentEvent'))||{key:'NONE',duration:0}}catch(e){console.error("Failed to load data, resetting.",e);playerStats={};playerTrophies={};currentEvent={key:'NONE',duration:0}}}
+    function setDiceFace(cube,value){let transform='';switch(value){case 1:transform='rotateY(0deg)';break;case 6:transform='rotateY(180deg)';break;case 3:transform='rotateY(90deg)';break;case 4:transform='rotateY(-90deg)';break;case 2:transform='rotateX(90deg)';break;case 5:transform='rotateX(-90deg)';break}cube.style.transform=transform}
+    
+    async function rollDice() {
+        if (isProcessing || !currentGame.isGameActive) return;
+        isProcessing = true;
+        dom.rollButton.disabled = true;
+        dom.turnSummary.style.opacity = '0';
+        dom.rollResultsContainer.innerHTML = '';
+    
+        const diceRolls = Array.from(dom.diceCubes, () => Math.floor(Math.random() * 6) + 1);
+        
+        dom.diceCubes.forEach(cube => {
+            cube.style.transform = '';
+            cube.classList.remove('rolling');
+            void cube.offsetWidth;
+            cube.classList.add('rolling');
+        });
+    
+        await new Promise(resolve => setTimeout(resolve, 1500));
+    
+        dom.diceCubes.forEach((cube, index) => {
+            cube.classList.remove('rolling');
+            setDiceFace(cube, diceRolls[index]);
+        });
+        
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        let pointsThisTurn = 0;
+        
+        for (const rollValue of diceRolls) {
+            for (let i = 0; i < rollValue; i++) {
+                const pokemon = generatePokemon();
+                pointsThisTurn += pokemon.points;
+    
+                const card = displayPokemonCard(pokemon);
+                
+                // --- LAG FIX: Shorter pause for common Pokémon, longer for special ---
+                if (pokemon.isTrophy || pokemon.isGmax || pokemon.isLegendary) {
+                    await playRevealAnimation(card, pokemon);
+                } else {
+                    await new Promise(resolve => setTimeout(resolve, 100)); // Faster reveal for commons
+                }
+            }
+        }
+    
+        handleScoring(pointsThisTurn);
+        isProcessing = false;
+    }
+    
+    function generatePokemon() {
+        let name = forcedGeneration.name, pokemonIndex;
+        const mutations = forcedGeneration.mutations;
+        const eventBoosts = EVENTS[currentEvent.key].boosts;
+    
+        if (name) {
+            pokemonIndex = POKEMON_DICTIONARY.findIndex(p => p.toLowerCase() === name.trim().toLowerCase());
+            if (pokemonIndex === -1) name = null;
+        }
+        
+        if (mutations.isLegendary && !name) { name = LEGENDARY_POKEMON[Math.floor(Math.random() * LEGENDARY_POKEMON.length)]; }
+        else if (mutations.isGmax && !name) { name = GMAX_POKEMON[Math.floor(Math.random() * GMAX_POKEMON.length)]; }
+        else if (Math.random() < eventBoosts.legendary && !name) { name = LEGENDARY_POKEMON[Math.floor(Math.random() * LEGENDARY_POKEMON.length)]; } 
+        else if (Math.random() < eventBoosts.gmax && !name) { name = GMAX_POKEMON[Math.floor(Math.random() * GMAX_POKEMON.length)]; } 
+        else if (!name) { name = POKEMON_DICTIONARY[Math.floor(Math.random() * POKEMON_DICTIONARY.length)]; }
+    
+        pokemonIndex = POKEMON_DICTIONARY.indexOf(name);
+        
+        let points = 0, tags = [], rarity = 'common';
+    
+        if (mutations.rarity === 'rainbow' || (mutations.rarity !== 'rainbow' && forcedGeneration.rarity === 'none' && Math.random() < (1 / 16384))) { rarity = 'rainbow'; points += 15; } 
+        else if (mutations.rarity === 'secret' || (mutations.rarity !== 'secret' && forcedGeneration.rarity === 'none' && Math.random() < (1 / 8192))) { rarity = 'secret'; points += 10; } 
+        else if (mutations.rarity === 'shiny' || (mutations.rarity !== 'shiny' && forcedGeneration.rarity === 'none' && Math.random() < (1 / eventBoosts.shiny))) { rarity = 'shiny'; points += 5; }
+        
+        const isLegendary = mutations.isLegendary || LEGENDARY_POKEMON.includes(name);
+        const isGmax = mutations.isGmax || GMAX_POKEMON.includes(name);
+        if (isLegendary) { points += 1; tags.push('Legendary'); }
+        if (isGmax) { points += 2; tags.push('Gigantamax'); }
+        
+        const isTrophy = rarity !== 'common';
+        if (isTrophy) tags.unshift(rarity.charAt(0).toUpperCase() + rarity.slice(1) + " Trophy");
+        
+        const gen = getGeneration(pokemonIndex + 1);
+        if (gen > 0) tags.push(`Gen ${gen}`);
+    
+        const pokemonData = { id: pokemonIndex + 1, name, points, rarity, tags, isTrophy, isLegendary, isGmax, generation: gen };
+        if (isTrophy) addTrophyToPlayer(pokemonData);
+        forcedGeneration = { name: null, mutations: {} };
+        return pokemonData;
+    }
+
+    function handleScoring(pointsThisTurn) { const currentPlayer = currentGame.players[currentGame.turnIndex]; const oldScore = currentGame.scores[currentPlayer]; const newScore = oldScore + pointsThisTurn; if (newScore > 100) { displayTurnSummary(`BUST! (+${pointsThisTurn} exceeds 100)`); } else { currentGame.scores[currentPlayer] = newScore; displayTurnSummary(`+${pointsThisTurn} points!`); } updateScoreboardView(); saveData(); if (newScore === 100) { handleWin(currentPlayer); } else { currentGame.turnIndex = (currentGame.turnIndex + 1) % currentGame.players.length; nextTurn(); } }
+    function nextTurn() { handleEventTurn(); const currentPlayer = currentGame.players[currentGame.turnIndex]; if (!currentPlayer) { endCurrentGame(); return; } const title = playerStats[currentPlayer]?.activeTitle || ''; dom.currentTurnDisplay.innerHTML = `Current Turn: ${currentPlayer} ${title ? `<i>[${title}]</i>` : ''}`; dom.rollButton.disabled = false; }
+    function handleWin(winnerName) { dom.victoryMessage.textContent = `${winnerName.toUpperCase()} WINS THE GAME!`; dom.victoryModal.classList.remove('hidden'); playerStats[winnerName].wins++; saveData(); endCurrentGame(winnerName); }
+    function endCurrentGame(winnerName) { currentGame.isGameActive = false; dom.rollButton.disabled = true; dom.currentTurnDisplay.innerHTML = `<strong>${winnerName} is the winner!</strong> Start a new game.`; }
+    function displayTurnSummary(message) { dom.turnSummary.textContent = message; dom.turnSummary.style.opacity = '1'; }
+    function navigateToPage(pageId) { dom.pages.forEach(p => p.classList.add('hidden')); document.getElementById(`page-${pageId}`).classList.remove('hidden'); dom.navButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.page === pageId)); if (pageId === 'scoreboard') updateScoreboardView(); if (pageId === 'trophy-case') { updateAllPlayerSelectors(); updateTrophyCaseView(); } if (pageId === 'titles') { updateAllPlayerSelectors(); updateTitleView(); } }
+    function displayPokemonCard(pokemon) { const card = document.createElement('div'); card.className = `pokemon-card gen-${pokemon.generation}`; const officialArt = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemon.id}.png`; const homeArt = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/${pokemon.id}.png`; const pixelArt = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.id}.png`; const placeholder = `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NiIgaGVpZ2h0PSI5NiIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM1NTUiIHN0cm9rZS13aWR0aD0iMSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMCIvPjxwYXRoIGQ9Ik0xMiAxM2ExIDEgMCAxIDAgMC0yIDEgMSAwIDAgMCAwIDJaIiBmaWxsPSIjNTU1Ii8+PC9zdmc+`; const img = document.createElement('img'); img.alt = pokemon.name; img.src = officialArt; img.onerror = () => { img.src = homeArt; img.onerror = () => { img.src = pixelArt; img.onerror = () => { img.src = placeholder; img.style.imageRendering = 'auto'; }; }; }; const tagsHTML = pokemon.tags.map(tag => `<span class="tag">${tag}</span>`).join(''); card.innerHTML = `<div class="reveal-overlay"></div>`; card.appendChild(img); card.innerHTML += `<p class="pokemon-card-name">${pokemon.name}</p><div class="pokemon-card-tags">${tagsHTML}</div>`; dom.rollResultsContainer.appendChild(card); return card; }
+    async function playRevealAnimation(card,pokemon){card.style.transition='background .5s ease';let colors=[];if(pokemon.rarity==='shiny')colors.push('var(--color-gold)');if(pokemon.rarity==='secret')colors.push('var(--color-purple)');if(pokemon.rarity==='rainbow')colors.push('var(--color-rainbow)');if(pokemon.isLegendary)colors.push('yellow');if(pokemon.isGmax)colors.push('red');let backgroundStyle;if(colors.length===1)backgroundStyle=colors[0];else if(colors.length===2)backgroundStyle=`linear-gradient(45deg, ${colors[0]}, ${colors[1]})`;else if(colors.length>=3)backgroundStyle=`linear-gradient(45deg, ${colors[0]}, ${colors[1]}, ${colors[2]})`;if(backgroundStyle)card.style.background=backgroundStyle;await new Promise(resolve=>setTimeout(resolve,3000));card.style.background=''}
+    function updateScoreboardView(){const body=dom.scoreboardTableBody;if(!body)return;if(!currentGame.isGameActive||currentGame.players.length===0){body.innerHTML=`<tr><td colspan="5">No active game. Start one from the Register page.</td></tr>`;return}body.innerHTML=currentGame.players.map(playerName=>{const stats=playerStats[playerName];const trophies=playerTrophies[playerName]||[];return`<tr><td>${playerName}</td><td>${stats.activeTitle||'---'}</td><td>${currentGame.scores[playerName]}</td><td>${stats.wins}</td><td>${trophies.length}</td></tr>`}).join('')}
+    function updateTrophyCaseView(){const selectedPlayer=dom.trophyPlayerSelect.value;const trophies=(playerTrophies[selectedPlayer]||[]).slice().reverse();if(!selectedPlayer||trophies.length===0){dom.trophyDisplayArea.innerHTML='<p>Select a player to view their trophies. Trophies are earned from Shiny, Secret, or Rainbow rolls!</p>';return}dom.trophyDisplayArea.innerHTML=trophies.map(trophy=>`<div class="trophy-card rarity-${trophy.rarity}"><span class="trophy-rarity-label">${trophy.rarity.toUpperCase()}</span><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${trophy.id}.png" alt="${trophy.name}"><p class="pokemon-card-name">${trophy.name}</p></div>`).join('')}
+    function updateTitleView(){const selectedPlayer=dom.titlesPlayerSelect.value;dom.winTitlesList.innerHTML='';dom.trophyTitlesList.innerHTML='';if(!selectedPlayer)return;const stats=playerStats[selectedPlayer];const trophyCount=(playerTrophies[selectedPlayer]||[]).length;const generateTitleList=(titles,count,type)=>Object.entries(titles).map(([req,title])=>{const unlocked=count>=parseInt(req,10);const equipped=stats.activeTitle===title;return`<li class="${unlocked?'unlocked':'locked'} ${equipped?'equipped':''}" data-title="${title}">${title} <span>(Req: ${req} ${type})</span></li>`}).join('');dom.winTitlesList.innerHTML=generateTitleList(WIN_TITLES,stats.wins,'Wins');dom.trophyTitlesList.innerHTML=generateTitleList(TROPHY_TITLES,trophyCount,'Trophies')}
+    function addTrophyToPlayer(trophyData){const player=currentGame.players[currentGame.turnIndex];if(!player)return;if(!playerTrophies[player])playerTrophies[player]=[];playerTrophies[player].push({uid:Date.now()+Math.random(),name:trophyData.name,id:trophyData.id,rarity:trophyData.rarity})}
+    function updatePlayerListView(){dom.playerList.innerHTML=Object.keys(playerStats).map(name=>`<div class="player-list-item"><span>${name} (Wins: ${playerStats[name].wins})</span><button class="delete-player-btn" data-player-name="${name}">×</button></div>`).join('');document.querySelectorAll('.delete-player-btn').forEach(btn=>btn.addEventListener('click',e=>{const name=e.target.dataset.playerName;if(confirm(`Permanently delete ${name}? This cannot be undone.`)){delete playerStats[name];delete playerTrophies[name];if(currentGame.isGameActive){const index=currentGame.players.indexOf(name);if(index>-1){currentGame.players.splice(index,1);if(currentGame.players.length<2)endCurrentGame(null)}}saveData();updatePlayerListView();updateAllPlayerSelectors()}}))}
+    function updateAllPlayerSelectors(){const playerNames=Object.keys(playerStats);const options=playerNames.map(name=>`<option value="${name}">${name}</option>`).join('');dom.trophyPlayerSelect.innerHTML=`<option value="">Select Player</option>${options}`;dom.titlesPlayerSelect.innerHTML=`<option value="">Select Player</option>${options}`;dom.devPlayerSelect.innerHTML=playerNames.length>0?options:'<option>No Players</option>'}
+    function handleEventTurn(){if(currentEvent.duration>0)currentEvent.duration--;if(currentEvent.duration<=0&&currentEvent.key!=='NONE')endCurrentEvent();else if(currentEvent.key==='NONE'){for(const key in EVENTS){if(key!=='NONE'&&Math.random()<1/EVENTS[key].chance){triggerEvent(key);break}}}updateOddsUI();updateEventIndicator();saveData()}
+    function triggerEvent(eventKey){const eventData=EVENTS[eventKey];if(!eventData||currentEvent.key!=='NONE')return;currentEvent={key:eventKey,duration:eventData.duration};dom.body.className=eventData.theme;dom.eventNotificationBanner.innerHTML=`${eventData.name} ${eventData.rarity}<br><span class="event-flavor-text">${eventData.flavorText}</span>`;dom.eventNotificationBanner.classList.add('visible');dom.eventNotificationBanner.style.animation='none';void dom.eventNotificationBanner.offsetWidth;dom.eventNotificationBanner.style.animation='slideDownFade 5s forwards'}
+    function endCurrentEvent(){currentEvent={key:'NONE',duration:0};dom.body.className=''}
+    function updateOddsUI(){const eventData=EVENTS[currentEvent.key];const boosts=eventData.boosts;dom.oddsDisplay.innerHTML=`<div class="event-title">${eventData.name}</div>Shiny: 1 in ${boosts.shiny} | Legendary: ${(boosts.legendary*100).toFixed(1)}% | G-Max: ${(boosts.gmax*100).toFixed(1)}%`}
+    function updateEventIndicator(){const eventData=EVENTS[currentEvent.key];dom.eventIndicator.innerHTML=currentEvent.key!=='NONE'?`<strong>${eventData.name}</strong><p>${eventData.rarity}</p><p>Turns Left: ${currentEvent.duration}</p>`:`<p><strong>Normal Conditions</strong></p>`}
+    
+    function addEventListeners(){
+        dom.navButtons.forEach(btn=>{btn.addEventListener('click',()=>{const page=btn.dataset.page;if(page==='dev'&&dom.devPanel.classList.contains('hidden')){dom.devPasswordModal.classList.remove('hidden')}else{navigateToPage(page)}})});
+        dom.registerForm.addEventListener('submit',e=>{e.preventDefault();const newName=dom.playerNameInput.value.trim();if(newName&&!playerStats[newName]){playerStats[newName]={wins:0,activeTitle:null};saveData();updatePlayerListView();updateAllPlayerSelectors();dom.playerNameInput.value=''}else if(playerStats[newName])alert('A player with this name already exists.')});
+        dom.startGamePromptButton.addEventListener('click',()=>{if(Object.keys(playerStats).length<2){alert("Register at least two players to start.");return}dom.startGameChecklist.innerHTML=Object.keys(playerStats).map(name=>`<label><input type="checkbox" name="player" value="${name}"> ${name}</label>`).join('');dom.startGameModal.classList.remove('hidden')});
+        dom.confirmStartGameButton.addEventListener('click',()=>{const selected=Array.from(dom.startGameChecklist.querySelectorAll('input:checked')).map(i=>i.value);if(selected.length>=2){currentGame={players:selected,scores:{},turnIndex:0,isGameActive:!0};selected.forEach(p=>{currentGame.scores[p]=0});dom.rollButton.disabled=!1;navigateToPage('roll');nextTurn();dom.startGameModal.classList.add('hidden')}else alert("Please select at least 2 players.")});
+        dom.cancelStartGameButton.addEventListener('click',()=>dom.startGameModal.classList.add('hidden'));
+        dom.rollButton.addEventListener('click',rollDice);
+        dom.victoryModalClose.addEventListener('click',()=>{dom.victoryModal.classList.add('hidden');if(!currentGame.isGameActive){navigateToPage('register')}});
+        dom.trophyPlayerSelect.addEventListener('change',updateTrophyCaseView);
+        dom.titlesPlayerSelect.addEventListener('change',updateTitleView);
+        const titleClickHandler=e=>{if(e.target.matches('li.unlocked')){const title=e.target.dataset.title;const player=dom.titlesPlayerSelect.value;playerStats[player].activeTitle=playerStats[player].activeTitle===title?null:title;saveData();updateTitleView()}};
+        dom.trophyTitlesList.addEventListener('click',titleClickHandler);dom.winTitlesList.addEventListener('click',titleClickHandler);
+        dom.devPasswordSubmit.addEventListener('click',()=>{if(dom.devPasswordInput.value==='developer123'){dom.devPanel.classList.remove('hidden');dom.devPasswordModal.classList.add('hidden')}else alert('Incorrect password.')});
+        dom.devPasswordCancel.addEventListener('click',()=>dom.devPasswordModal.classList.add('hidden'));
+        dom.devEventButtons.forEach(btn=>btn.addEventListener('click',()=>{const key=btn.dataset.eventKey;if(currentEvent.key===key)endCurrentEvent();else{if(currentEvent.key!=='NONE')endCurrentEvent();triggerEvent(key)}handleEventTurn()}));
+        dom.forceGenerateBtn.addEventListener('click',() => {
+            const name = dom.forcePokemonInput.value.trim();
+            if (name && !POKEMON_DICTIONARY.find(p => p.toLowerCase() === name.toLowerCase())) {
+                alert('Invalid Pokémon name!');
+                return;
+            }
+            const mutations = {};
+            document.querySelectorAll('#force-mutations-container input:checked').forEach(input => {
+                mutations[input.value] = true;
+            });
+            const trophyRarity = document.querySelector('#force-rarity-container input:checked').value;
+            if (trophyRarity !== 'none') {
+                mutations.rarity = trophyRarity;
+            }
+            forcedGeneration = { name: name || null, mutations: mutations };
+            alert(`Next generation forced with specified mutations.`);
+        });
+        dom.devAddScoreBtn.addEventListener('click',()=>{const player=dom.devPlayerSelect.value;const score=parseInt(dom.devScoreInput.value,10);if(player&&currentGame.isGameActive&&!isNaN(score)){currentGame.scores[player]=Math.max(0,currentGame.scores[player]+score);updateScoreboardView()}});
+        dom.devSetScoreBtn.addEventListener('click',()=>{const player=dom.devPlayerSelect.value;const score=parseInt(dom.devScoreInput.value,10);if(player&&currentGame.isGameActive&&!isNaN(score)){currentGame.scores[player]=Math.max(0,score);updateScoreboardView()}});
+        dom.wipeDataBtn.addEventListener('click',()=>{if(confirm('DANGER! This will wipe ALL players and data. This cannot be undone. Are you sure?')){localStorage.clear();location.reload()}});
+    }
+    
+    init();
+});
+</script>
+</body>
+</html>
