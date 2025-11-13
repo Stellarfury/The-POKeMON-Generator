@@ -33,6 +33,21 @@
 </div>
 
 <script src="app.js"></script>
+<script src="https:                                                                           
+<script type="module">
+  import createAuth0Client from 'https:                                                                  
+
+                                                
+  const auth0 = await createAuth0Client({
+    domain: 'YOUR_AUTH0_DOMAIN',                                         
+    client_id: 'YOUR_CLIENT_ID',      // ← replace with your own client ID
+    redirect_uri: window.location.origin
+  });
+
+  // These functions will be called from the buttons
+  window.login = () => auth0.loginWithRedirect();
+  window.logout = () => auth0.logout({ returnTo: window.location.origin });
+    </script>
 </body>
                        </html>
                        
