@@ -33,33 +33,30 @@
   <!-- Auth0 SDK and client initialization -->
   <script src="https:                                                                           
   <script type="module">
-    import createAuth0Client from 'https:                                                                  
+    import createAuth0Client from 'https:manage.auth0.com                                                                  
 
-                              
-    const auth0 = await createAuth0Client({
-      domain: 'dev-lqvdqbi1n63tgefz.us.auth0.com',                                 
-      client_id: 'YDxtKnWQeL7cugCp2bOc5Lnrc10IOpD7',                                  
-      redirect_uri: window.location.origin
-    });
-
-                                                                   
-    window.login = () => auth0.loginWithRedirect();
-    window.signup = () => auth0.loginWithRedirect({ screen_hint: 'signup' });
-    window.logout = () => auth0.logout({ returnTo: window.location.origin });
-
-                                                               
     (async () => {
+      const auth0 = await createAuth0Client({
+        domain: 'dev-lqvdqbi1n63tgefz.us.auth0.com',                                 
+        client_id: 'YDxtKnWQeL7cugCp2bOc5Lnrc10IOpD7',                                  
+        redirect_uri: window.location.origin
+      });
+
+                                                                     
+      window.login = () => auth0.loginWithRedirect();
+      window.signup = () => auth0.loginWithRedirect({ screen_hint: 'signup' });
+      window.logout = () => auth0.logout({ returnTo: window.location.origin });
+
+                                                                 
       const user = await auth0.getUser();
       if (user) {
         document.getElementById('login').style.display = 'none';
         document.getElementById('game').style.display = 'block';
         document.getElementById('player').textContent = user.name || user.email;
       }
-    })();
 
-    console.log('Auth0 client ready'); // optional debug line
+      console.log('Auth0 client ready');
+    })();
   </script>
 </body>
-  </html>
-  
-<script src="app.js"></script>
+</html>
